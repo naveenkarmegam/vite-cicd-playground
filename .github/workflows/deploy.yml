@@ -1,0 +1,113 @@
+name: Deploy
+
+# SIMULATED deploy: same steps as the real S3 + CloudFront workflow, but instead
+# of uploading it prints what it would do and saves dist/ as a downloadable
+# artifact. Called by release.yml, or run by hand from the Actions tab to
+# redeploy / roll back to any tag.
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+      ref:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to deploy to
+        type: choice
+        options: [development, staging, production]
+        required: true
+      ref:
+        description: Tag, branch or commit to deploy (e.g. v1.4.0)
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ vars.APP_URL }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Check environment variables
+        env:
+          VITE_BACKEND_BASE_URL: ${{ vars.VITE_BACKEND_BASE_URL }}
+        run: |
+          missing=0
+          for name in VITE_BACKEND_BASE_URL; do
+            if [ -z "${!name}" ]; then
+              echo "::error::$name is not set on the '${{ inputs.environment }}' GitHub Environment"
+              missing=1
+            fi
+          done
+          exit $missing
+
+      - name: Build
+        env:
+          VITE_BACKEND_BASE_URL: ${{ vars.VITE_BACKEND_BASE_URL }}
+          VITE_APP_ENV: ${{ inputs.environment }}
+        run: VITE_COMMIT_SHA="$(git rev-parse --short HEAD)" pnpm build
+
+      - name: Simulate upload to S3 + CloudFront invalidation
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          REF: ${{ inputs.ref }}
+        run: |
+          version=$(node -p "require('./package.json').version")
+          commit=$(git rev-parse --short HEAD)
+          bucket="s3://vite-cicd-playground-$ENVIRONMENT"
+
+          echo "Would run:"
+          echo "  aws s3 sync dist/assets $bucket/assets --cache-control 'public,max-age=31536000,immutable'"
+          echo "  aws s3 sync dist $bucket --delete --exclude 'assets/*' --cache-control 'no-cache'"
+          echo "  aws cloudfront create-invalidation --distribution-id <id> --paths '/*'"
+
+          {
+            echo "## Deployed to \`$ENVIRONMENT\` (simulated)"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Ref | \`$REF\` |"
+            echo "| Version | \`$version\` |"
+            echo "| Commit | \`$commit\` |"
+            echo "| Bucket | \`$bucket\` |"
+            echo
+            echo "Files that would be uploaded:"
+            echo
+            echo '```'
+            (cd dist && find . -type f -exec ls -l {} \; | awk '{print $5"\t"$9}')
+            echo '```'
+            echo
+            echo "Download the **site-$ENVIRONMENT** artifact below and run \`npx serve\` in it to open this exact build."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Save build as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-${{ inputs.environment }}
+          path: dist
+          retention-days: 7

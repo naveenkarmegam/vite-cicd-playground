@@ -1,0 +1,25 @@
+version: 2
+updates:
+  - package-ecosystem: npm # also handles pnpm-lock.yaml
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: chore
+      include: scope # → "chore(deps): ..." / "chore(deps-dev): ..."
+    groups:
+      # One PR for all minor/patch updates instead of one per package
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        patterns: ["*"]

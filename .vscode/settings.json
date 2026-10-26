@@ -1,0 +1,19 @@
+{
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "stylelint.validate": ["css"],
+  "css.lint.unknownAtRules": "ignore",
+  "files.associations": {
+    "CODEOWNERS": "plaintext"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.stylelint": "explicit"
+  }
+}
