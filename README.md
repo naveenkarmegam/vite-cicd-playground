@@ -71,7 +71,7 @@ gh pr create --fill
 After the merge, **Actions → Release** runs:
 
 - **deploy-development** builds `main` and deploys it to development. Open the run's **Summary** to see what would be uploaded, and download the `site-development` artifact to open the build.
-- **release-please** opens a PR called `chore(main): release 1.0.0`. (Release Please starts at 1.0.0 by default. To start lower, add a `Release-As: 0.1.0` footer to a commit.).
+- **release-please** opens a PR called `chore(main): release 1.0.0`. (Release Please starts at 1.0.0 by default. To start lower, add a `Release-As: 0.1.0` footer to a commit.)
 
 ### 3. Cut a release
 
