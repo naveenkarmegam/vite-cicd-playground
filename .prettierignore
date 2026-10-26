@@ -1,3 +1,5 @@
 pnpm-lock.yaml
 # Not Markdown; "* @user" must stay as it is
 .github/CODEOWNERS
+
+CHANGELOG.md
