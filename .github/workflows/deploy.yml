@@ -40,13 +40,13 @@ jobs:
       name: ${{ inputs.environment }}
       url: ${{ vars.APP_URL }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref }}
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: pnpm
@@ -106,7 +106,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Save build as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: site-${{ inputs.environment }}
           path: dist
