@@ -71,19 +71,19 @@ gh pr create --fill
 After the merge, **Actions → Release** runs:
 
 - **deploy-development** builds `main` and deploys it to development. Open the run's **Summary** to see what would be uploaded, and download the `site-development` artifact to open the build.
-- **release-please** opens a PR called `chore(main): release 0.1.0`.
+- **release-please** opens a PR called `chore(main): release 1.0.0`. (Release Please starts at 1.0.0 by default. To start lower, add a `Release-As: 0.1.0` footer to a commit.).
 
 ### 3. Cut a release
 
-Open the Release PR. It bumps `package.json` to `0.1.0` and adds `CHANGELOG.md`. Merge it (bypass again).
+Open the Release PR. It bumps `package.json` to `1.0.0` and adds `CHANGELOG.md`. Merge it (bypass again).
 
 **Actions → Release** now:
 
 1. deploys `main` to **development**,
-2. creates tag `v0.1.0` and a GitHub Release,
-3. deploys `v0.1.0` to **staging**,
+2. creates tag `v1.0.0` and a GitHub Release,
+3. deploys `v1.0.0` to **staging**,
 4. **waits** at **deploy-production**. Click **Review deployments**, tick `production`, and approve.
-5. deploys the same `v0.1.0` to **production**.
+5. deploys the same `v1.0.0` to **production**.
 
 Check **Code → Releases** and the **Environments** list on the repo's main page: each environment shows what's deployed.
 
@@ -102,25 +102,25 @@ CI fails, and the merge button stays blocked, even with bypass: the CI ruleset c
 
 ### 5. Roll back
 
-**Actions → Deploy → Run workflow**, environment `production`, ref `v0.1.0` (or any older tag). Approve it. The production app now shows that version.
+**Actions → Deploy → Run workflow**, environment `production`, ref `v1.0.0` (or any older tag). Approve it. The production app now shows that version.
 
 ### 6. Hotfix
 
-Make one more `feat:` release first (repeat exercises 2 and 3) so production is on `v0.2.0` and `main` has moved on. Then:
+Make one more `feat:` release first (repeat exercises 2 and 3) so production is on `v1.1.0` and `main` has moved on. Then:
 
 ```bash
 git fetch --tags
-git switch -c hotfix/0.2.x v0.2.0
-git push -u origin hotfix/0.2.x
+git switch -c hotfix/1.1.x v1.1.0
+git push -u origin hotfix/1.1.x
 
 git switch -c fix/urgent
 # make a small change
 git commit -am "fix: urgent production fix"
 git push -u origin fix/urgent
-gh pr create --base hotfix/0.2.x --fill
+gh pr create --base hotfix/1.1.x --fill
 ```
 
-Merge that PR. Release Please opens a Release PR **on the hotfix branch**. Merge it: `v0.2.1` goes to staging, then production after approval. Development isn't touched. Finally, open a PR from `hotfix/0.2.x` into `main` and merge it with a **merge commit**.
+Merge that PR. Release Please opens a Release PR **on the hotfix branch**. Merge it: `v1.1.1` goes to staging, then production after approval. Development isn't touched. Finally, open a PR from `hotfix/1.1.x` into `main` and merge it with a **merge commit**.
 
 ### 7. Dependabot
 
