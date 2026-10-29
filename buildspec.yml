@@ -1,0 +1,43 @@
+version: 0.2
+
+env:
+  variables:
+    NODE_ENV: production
+    VITE_BACKEND_BASE_URL: "https://api.example.com"
+    # Vite only exposes vars prefixed with VITE_ to the app, and they are baked in at build time
+    # VITE_API_URL: "https://api.example.com"
+  # parameter-store:
+  #   VITE_API_KEY: /myapp/prod/vite_api_key
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - npm install -g pnpm@9
+      - pnpm config set store-dir .pnpm-store
+      - node -v && pnpm -v
+
+  pre_build:
+    commands:
+      # NODE_ENV=production would skip devDependencies (vite itself), so force them in
+      - pnpm install --frozen-lockfile --prod=false
+
+  build:
+    commands:
+      - pnpm run build
+
+  # Optional: deploy to S3 + CloudFront (role needs s3:PutObject/DeleteObject/ListBucket and cloudfront:CreateInvalidation)
+  # post_build:
+  #   commands:
+  #     - aws s3 sync dist/ s3://$S3_BUCKET --delete
+  #     - aws cloudfront create-invalidation --distribution-id $CF_DISTRIBUTION_ID --paths "/*"
+
+artifacts:
+  base-directory: dist
+  files:
+    - '**/*'
+
+cache:
+  paths:
+    - '.pnpm-store/**/*'
