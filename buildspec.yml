@@ -1,43 +1,80 @@
 version: 0.2
 
+# AWS CodeBuild equivalent of .github/workflows/deploy.yml.
+#
+# Set these on the CodeBuild project (Environment > Environment variables) or as
+# overrides when starting a build, so one buildspec serves every environment:
+#   VITE_BACKEND_BASE_URL  required, full URL of the backend API
+#   VITE_APP_ENV           development | staging | production
+#   S3_BUCKET              optional, bucket to upload dist/ to (skips deploy if unset)
+#   CF_DISTRIBUTION_ID     optional, CloudFront distribution to invalidate
+#
+# Vite bakes VITE_* vars into the bundle at build time, so they must be set
+# before `pnpm build`, and must never hold secrets.
+
 env:
   variables:
-    NODE_ENV: production
-    VITE_BACKEND_BASE_URL: "https://api.example.com"
-    # Vite only exposes vars prefixed with VITE_ to the app, and they are baked in at build time
-    # VITE_API_URL: "https://api.example.com"
+    VITE_APP_ENV: development
+    # Skip installing git hooks; there is no one to commit in CI
+    HUSKY: "0"
   # parameter-store:
-  #   VITE_API_KEY: /myapp/prod/vite_api_key
+  #   VITE_BACKEND_BASE_URL: /vite-cicd-playground/development/backend_base_url
+  exported-variables:
+    - VITE_COMMIT_SHA
 
 phases:
   install:
     runtime-versions:
-      nodejs: 20
+      # Keep in sync with .nvmrc
+      nodejs: 22
     commands:
-      - npm install -g pnpm@9
-      - pnpm config set store-dir .pnpm-store
+      # Install the exact pnpm version pinned in package.json "packageManager"
+      - npm install -g "pnpm@$(node -p "require('./package.json').packageManager.split('@')[1]")"
+      - pnpm config set store-dir "$CODEBUILD_SRC_DIR/.pnpm-store"
       - node -v && pnpm -v
 
   pre_build:
     commands:
-      # NODE_ENV=production would skip devDependencies (vite itself), so force them in
-      - pnpm install --frozen-lockfile --prod=false
+      - pnpm install --frozen-lockfile
+      - |
+        missing=0
+        for name in VITE_BACKEND_BASE_URL VITE_APP_ENV; do
+          if [ -z "$(printenv "$name")" ]; then
+            echo "ERROR: $name is not set on the CodeBuild project"
+            missing=1
+          fi
+        done
+        exit $missing
+      # Sources from CodePipeline arrive without .git, so use the commit CodeBuild resolved
+      - export VITE_COMMIT_SHA="$(echo "${CODEBUILD_RESOLVED_SOURCE_VERSION:-local}" | cut -c1-7)"
 
   build:
     commands:
-      - pnpm run build
+      - pnpm build
 
-  # Optional: deploy to S3 + CloudFront (role needs s3:PutObject/DeleteObject/ListBucket and cloudfront:CreateInvalidation)
-  # post_build:
-  #   commands:
-  #     - aws s3 sync dist/ s3://$S3_BUCKET --delete
-  #     - aws cloudfront create-invalidation --distribution-id $CF_DISTRIBUTION_ID --paths "/*"
+  post_build:
+    commands:
+      # post_build runs even if the build failed; never deploy a broken dist/
+      - |
+        set -e
+        if [ "$CODEBUILD_BUILD_SUCCEEDING" != "1" ]; then
+          echo "Build failed, skipping deploy"
+        elif [ -z "$S3_BUCKET" ]; then
+          echo "S3_BUCKET not set, skipping deploy (dist/ is still saved as the build artifact)"
+        else
+          # Hashed assets never change, so cache them forever; everything else must revalidate
+          aws s3 sync dist/assets "s3://$S3_BUCKET/assets" --cache-control "public,max-age=31536000,immutable"
+          aws s3 sync dist "s3://$S3_BUCKET" --delete --exclude "assets/*" --cache-control "no-cache"
+          if [ -n "$CF_DISTRIBUTION_ID" ]; then
+            aws cloudfront create-invalidation --distribution-id "$CF_DISTRIBUTION_ID" --paths "/*"
+          fi
+        fi
 
 artifacts:
   base-directory: dist
   files:
-    - '**/*'
+    - "**/*"
 
 cache:
   paths:
-    - '.pnpm-store/**/*'
+    - ".pnpm-store/**/*"
