@@ -40,11 +40,11 @@ phases:
         missing=0
         for name in VITE_BACKEND_BASE_URL VITE_APP_ENV; do
           if [ -z "$(printenv "$name")" ]; then
-            echo "ERROR: $name is not set on the CodeBuild project"
+            echo "ERROR: $name is not set on the CodeBuild project (Edit > Environment > Additional configuration > Environment variables)"
             missing=1
           fi
         done
-        exit $missing
+        [ "$missing" -eq 0 ]
       # Sources from CodePipeline arrive without .git, so use the commit CodeBuild resolved
       - export VITE_COMMIT_SHA="$(echo "${CODEBUILD_RESOLVED_SOURCE_VERSION:-local}" | cut -c1-7)"
 
