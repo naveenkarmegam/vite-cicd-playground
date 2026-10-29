@@ -15,6 +15,7 @@ version: 0.2
 env:
   variables:
     VITE_APP_ENV: development
+    VITE_BACKEND_BASE_URL: https://localhost:3000
     # Skip installing git hooks; there is no one to commit in CI
     HUSKY: "0"
   # parameter-store:
