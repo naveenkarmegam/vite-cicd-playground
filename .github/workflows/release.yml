@@ -1,7 +1,7 @@
 name: Release
 
 # main         → deploy to development, keep the Release PR up to date
-# Release PR   → merged: tag vX.Y.Z → staging → (approval) → production
+# Release PR   → merged: tag vX.Y.Z -> (approval) → staging → (approval) → production
 # hotfix/**    → same release flow for a patch cut from a production tag
 
 on:
