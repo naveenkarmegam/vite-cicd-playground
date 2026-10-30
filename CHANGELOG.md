@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/naveenkarmegam/vite-cicd-playground/compare/v1.1.1...v1.1.2) (2026-10-30)
+
+
+### Bug Fixes
+
+* **ci:** update the yaml file ([#9](https://github.com/naveenkarmegam/vite-cicd-playground/issues/9)) ([70312ed](https://github.com/naveenkarmegam/vite-cicd-playground/commit/70312eda042dfd676e1def2a735815d2c408812f))
+
 ## [1.1.1](https://github.com/naveenkarmegam/vite-cicd-playground/compare/v1.1.0...v1.1.1) (2026-10-30)
 
 
