@@ -7,6 +7,7 @@ With squash merge, the title becomes the commit message on main and decides the 
 
 ## What changed
 
+<!-- Example -->
 <!-- What does this PR do, and why? Keep it short. -->
 
 ## Related issue
