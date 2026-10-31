@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/naveenkarmegam/vite-cicd-playground/compare/v1.1.2...v1.1.3) (2026-10-31)
+
+
+### Bug Fixes
+
+* **temp:** update the template files ([3810861](https://github.com/naveenkarmegam/vite-cicd-playground/commit/3810861b6313b054cd2101002936e0af9390feca))
+
 ## [1.1.2](https://github.com/naveenkarmegam/vite-cicd-playground/compare/v1.1.1...v1.1.2) (2026-10-30)
 
 
