@@ -13,6 +13,9 @@ export function App() {
         commit={Settings.COMMIT_SHA}
       />
       <h1 className="text-3xl font-bold">Vite CI/CD Playground</h1>
+      <span className="text-gray-600">
+        Frontend used: <code>Vite + React + TypeScript</code>
+      </span>
       <p className="text-gray-600">
         Backend: <code>{Settings.BASE_URL}</code>
       </p>
