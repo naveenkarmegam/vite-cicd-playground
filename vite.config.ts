@@ -12,8 +12,9 @@ const { version } = JSON.parse(
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   define: {
-    // Shown in the app so you can see which release is deployed where
-    __APP_VERSION__: JSON.stringify(version),
+    // Shown in the app so you can see which release is deployed where.
+    // The deploy workflow sets APP_VERSION from `git describe`.
+    __APP_VERSION__: JSON.stringify(process.env.APP_VERSION ?? version),
   },
   resolve: {
     alias: {

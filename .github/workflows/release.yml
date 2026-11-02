@@ -61,3 +61,28 @@ jobs:
     with:
       environment: production
       ref: ${{ needs.release-please.outputs.tag_name }}
+
+  # After a hotfix release, open a PR to bring it back into main so the fix
+  # isn't lost and main's next version doesn't collide with the hotfix tag.
+  # Needs RELEASE_PLEASE_TOKEN (a PAT): PRs opened with github.token don't
+  # trigger CI, so the required "check" would never run.
+  merge-back:
+    needs: release-please
+    if: >-
+      startsWith(github.ref, 'refs/heads/hotfix/') &&
+      needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Open merge-back PR into main
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          BRANCH: ${{ github.ref_name }}
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: |
+          gh pr create --repo "${{ github.repository }}" \
+            --base main --head "$BRANCH" \
+            --title "chore: merge $BRANCH ($TAG) into main" \
+            --body "Brings hotfix $TAG back into main.
+
+          - Merge with **Create a merge commit**, not squash, so the tag is in main's history.
+          - On conflicts in package.json, CHANGELOG.md or .release-please-manifest.json, keep **main's** (higher) version and add the $TAG changelog entry below it."

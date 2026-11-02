@@ -22,7 +22,7 @@ on:
         options: [development, staging, production]
         required: true
       ref:
-        description: Tag, branch or commit to deploy (e.g. v1.4.0)
+        description: Release tag (e.g. v1.4.0); development also accepts a branch or commit
         type: string
         required: true
 
@@ -40,16 +40,34 @@ jobs:
       name: ${{ inputs.environment }}
       url: ${{ vars.APP_URL }}
     steps:
+      # Staging/production only ever get a tested release, never a random branch.
+      # REF goes through env so the input can't inject shell commands.
+      - name: Only release tags can go to staging/production
+        if: inputs.environment != 'development'
+        env:
+          REF: ${{ inputs.ref }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! [[ "$REF" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::'$REF' is not a release tag (expected vX.Y.Z)"
+            exit 1
+          fi
+          gh api "repos/${{ github.repository }}/git/ref/tags/$REF" --silent \
+            || { echo "::error::Tag $REF does not exist"; exit 1; }
+
       - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref }}
+          fetch-depth: 0 # git describe needs tags + history
 
       - uses: pnpm/action-setup@v6
 
+      # No cache on manual runs, so a hand-picked ref can't poison the cache
+      # that release runs on main restore (CodeQL actions/cache-poisoning)
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
-          cache: pnpm
+          cache: ${{ github.event_name != 'workflow_dispatch' && 'pnpm' || '' }}
 
       - run: pnpm install --frozen-lockfile
 
@@ -66,19 +84,26 @@ jobs:
           done
           exit $missing
 
+      # On a tag: "1.2.0". On an unreleased commit: "1.2.0-3-gabc1234"
+      # (3 commits after v1.2.0), so dev doesn't pretend to be a release.
+      - name: Work out version
+        run: |
+          echo "VITE_COMMIT_SHA=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
+          echo "APP_VERSION=$(git describe --tags --always | sed 's/^v//')" >> "$GITHUB_ENV"
+
       - name: Build
         env:
           VITE_BACKEND_BASE_URL: ${{ vars.VITE_BACKEND_BASE_URL }}
           VITE_APP_ENV: ${{ inputs.environment }}
-        run: VITE_COMMIT_SHA="$(git rev-parse --short HEAD)" pnpm build
+        run: pnpm build
 
       - name: Simulate upload to S3 + CloudFront invalidation
         env:
           ENVIRONMENT: ${{ inputs.environment }}
           REF: ${{ inputs.ref }}
         run: |
-          version=$(node -p "require('./package.json').version")
-          commit=$(git rev-parse --short HEAD)
+          version="$APP_VERSION"
+          commit="$VITE_COMMIT_SHA"
           bucket="s3://vite-cicd-playground-$ENVIRONMENT"
 
           echo "Would run:"
