@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0](https://github.com/naveenkarmegam/vite-cicd-playground/compare/v1.1.2...v1.2.0) (2026-11-02)
+
+
+### Features
+
+* add ui styles ([#13](https://github.com/naveenkarmegam/vite-cicd-playground/issues/13)) ([a90a1f0](https://github.com/naveenkarmegam/vite-cicd-playground/commit/a90a1f0e11efac758e2048dde8bfc53172757466))
+* test 2 ([#15](https://github.com/naveenkarmegam/vite-cicd-playground/issues/15)) ([c7610b8](https://github.com/naveenkarmegam/vite-cicd-playground/commit/c7610b87a699c94e5a2066d6d3cf61c647f0667b))
+
 ## [1.1.2](https://github.com/naveenkarmegam/vite-cicd-playground/compare/v1.1.1...v1.1.2) (2026-10-30)
 
 
