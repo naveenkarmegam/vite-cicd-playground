@@ -19,6 +19,7 @@ export function App() {
       <p className="text-gray-600">
         Backend: <code>{Settings.BASE_URL}</code>
       </p>
+      <span>Testing the github integration</span>
       <button
         type="button"
         className="w-fit rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
