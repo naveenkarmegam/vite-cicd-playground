@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/naveenkarmegam/vite-cicd-playground/compare/v1.2.0...v1.3.0) (2026-11-02)
+
+
+### Features
+
+* **ci:** updated the workflow files ([#16](https://github.com/naveenkarmegam/vite-cicd-playground/issues/16)) ([252079e](https://github.com/naveenkarmegam/vite-cicd-playground/commit/252079eb40b0c68951bd0b162f96f1bec341448f))
+
 ## [1.2.0](https://github.com/naveenkarmegam/vite-cicd-playground/compare/v1.1.2...v1.2.0) (2026-11-02)
 
 
