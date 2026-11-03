@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0](https://github.com/naveenkarmegam/vite-cicd-playground/compare/v1.2.0...v1.3.0) (2026-11-03)
+
+
+### Features
+
+* change the button ([#21](https://github.com/naveenkarmegam/vite-cicd-playground/issues/21)) ([e67f4b1](https://github.com/naveenkarmegam/vite-cicd-playground/commit/e67f4b1a0fbe198a9f086c7b3ab1f4d1694d2428))
+
+
+### Bug Fixes
+
+* **revert :** "chore(hotfix/1.2.x): release 1.3.0 ([#22](https://github.com/naveenkarmegam/vite-cicd-playground/issues/22))" ([#23](https://github.com/naveenkarmegam/vite-cicd-playground/issues/23)) ([eed4e64](https://github.com/naveenkarmegam/vite-cicd-playground/commit/eed4e6482623fb0b0fdffd1ba223476c53ce2a5a))
+
 ## [1.2.0](https://github.com/naveenkarmegam/vite-cicd-playground/compare/v1.1.2...v1.2.0) (2026-11-02)
 
 
