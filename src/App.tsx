@@ -32,6 +32,13 @@ export function App() {
         type="button"
         className="w-fit rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700"
       >
+        Simple Button
+      </button>
+
+      <button
+        type="button"
+        className="w-fit rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+      >
         Test Button
       </button>
     </main>
