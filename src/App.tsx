@@ -27,6 +27,13 @@ export function App() {
       >
         Clicked {count} times
       </button>
+
+      <button
+        type="button"
+        className="w-fit rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+      >
+        Test Button
+      </button>
     </main>
   );
 }
