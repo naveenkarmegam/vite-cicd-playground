@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.0](https://github.com/naveenkarmegam/vite-cicd-playground/compare/v1.3.0...v1.4.0) (2026-11-03)
+
+
+### Features
+
+* **app:** button added in the app.tsx file ([#18](https://github.com/naveenkarmegam/vite-cicd-playground/issues/18)) ([02fb4fe](https://github.com/naveenkarmegam/vite-cicd-playground/commit/02fb4feecfd9e297175f88ac14ac56752fa2d4f8))
+
+
+### Bug Fixes
+
+* **app:** add simple button ([#20](https://github.com/naveenkarmegam/vite-cicd-playground/issues/20)) ([15bcbb8](https://github.com/naveenkarmegam/vite-cicd-playground/commit/15bcbb8eb3f02718a5148c7778951ff0c5f78a94))
+
 ## [1.3.0](https://github.com/naveenkarmegam/vite-cicd-playground/compare/v1.2.0...v1.3.0) (2026-11-02)
 
 
